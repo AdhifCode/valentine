@@ -1,81 +1,173 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import videoSrc from "../../assets/mymy.mp4";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ─── Config ───────────────────────────────────────────────────────────────────
+
+const HEART_PATH =
+  "M 50 88 C 30 72, 8 58, 8 38 C 8 20, 22 12, 35 12 C 42 12, 47 16, 50 20 C 53 16, 58 12, 65 12 C 78 12, 92 20, 92 38 C 92 58, 70 72, 50 88 Z";
+
+const CONFIG = {
+  initialScale: 0.3,
+  finalScale: 10,
+  heartX: 50,
+  heartY: 50,
+
+  // ─── Gradient Config ───────────────────────────────────────────
+  // Warna dasar overlay (dilapisi gradient di atasnya)
+  baseColor: "hsl(340, 60%, 92%)",
+
+  // Gradient 1 — kanan atas (gold accent)
+  grad1: {
+    color: "hsl(45, 80%, 60%)", // ← ganti warna gold di sini
+    opacity: 0.2, // ← sesuai dengan / 0.2 di CSS
+    cx: "80%",
+    cy: "30%", // ← posisi ellipse (80% 30%)
+    rx: "40%",
+    ry: "40%", // ← radius (40% = ukuran ellipse)
+  },
+
+  // Gradient 2 — kiri bawah (maroon accent)
+  grad2: {
+    color: "hsl(0, 50%, 30%)", // ← ganti warna maroon di sini
+    opacity: 0.08, // ← sesuai dengan / 0.08 di CSS
+    cx: "20%",
+    cy: "70%", // ← posisi ellipse (20% 70%)
+    rx: "40%",
+    ry: "40%",
+  },
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 const ScrollMaskVideo = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const maskRef = useRef<HTMLDivElement>(null);
+  const heartRef = useRef<SVGGElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      if (!maskRef.current) return;
-
-      // Initial scale of the SVG mask — small heart in the center
-      gsap.set(maskRef.current, { scale: 0.15 });
-
-      // Scroll-driven scale animation
-      // scrub: 1 controls smoothness (higher = smoother but laggier)
-      // start/end controls how fast the zoom happens relative to scroll distance
-      gsap.to(maskRef.current, {
-        scale: 8, // Final scale — large enough to fill entire viewport
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          // Controls the speed of enlargement — more height = slower zoom
-          end: "bottom bottom",
-          scrub: 1, // Smoothness factor for scroll tracking
-          pin: false,
+      gsap.fromTo(
+        heartRef.current,
+        {
+          scale: CONFIG.initialScale,
+          svgOrigin: `${CONFIG.heartX} ${CONFIG.heartY}`,
         },
-      });
+        {
+          scale: CONFIG.finalScale,
+          svgOrigin: `${CONFIG.heartX} ${CONFIG.heartY}`,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1,
+            pin: true,
+            pinSpacing: true,
+          },
+        },
+      );
     }, containerRef);
 
     return () => ctx.revert();
   }, []);
 
-  return (
-    // Container height controls how long the scroll-zoom effect lasts
-    // 250vh = 1.5x viewport of scrolling before the video fills the screen
-    <section ref={containerRef} className="relative h-[250vh]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
-        {/* 
-          Mask container — uses clip-path with an inline SVG heart shape.
-          The heart SVG path is used as the clipping mask for the video.
-        */}
-        <div
-          ref={maskRef}
-          className="relative w-[80vmin] h-[80vmin] flex items-center justify-center"
-          style={{
-            // Heart-shaped clip-path using SVG path data
-            clipPath: `path("M 250 450 
-              C 250 450, 50 300, 50 175 
-              C 50 80, 130 25, 200 25 
-              C 230 25, 250 40, 250 40 
-              S 270 25, 300 25 
-              C 370 25, 450 80, 450 175 
-              C 450 300, 250 450, 250 450 Z")`,
-            // Normalize the path to the element's coordinate system
-            clipRule: "evenodd",
-          }}
-        >
-          {/* Video inside the heart mask */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            // Replace this src with your own video URL
-            src="https://videos.pexels.com/video-files/3327513/3327513-uhd_2560_1440_30fps.mp4"
-          />
-        </div>
+  const { grad1, grad2, baseColor } = CONFIG;
 
-        {/* Decorative text behind the mask */}
-        <p className="absolute font-serif-display text-2xl md:text-4xl text-muted-foreground/30 pointer-events-none select-none">
-          Scroll untuk membuka hatiku 💕
-        </p>
+  return (
+    <section ref={containerRef} className="relative h-[150vh]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* Layer 1: Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          src={videoSrc}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+
+        {/* Layer 2: SVG full-screen dengan mask + gradient overlay */}
+        <svg
+          className="absolute inset-0 w-full h-full z-10 pointer-events-none"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <defs>
+            {/* ── Mask: lubang hati ─────────────────────────────── */}
+            <mask id="heartHole">
+              <rect width="100" height="100" fill="white" />
+              <g
+                ref={heartRef}
+                transform={`translate(${CONFIG.heartX}, ${CONFIG.heartY}) translate(-50, -50)`}
+              >
+                <path d={HEART_PATH} fill="black" />
+              </g>
+            </mask>
+
+            {/* ── Gradient 1: radial kanan atas (gold) ─────────── */}
+            <radialGradient
+              id="gradGold"
+              cx={grad1.cx}
+              cy={grad1.cy}
+              rx={grad1.rx}
+              ry={grad1.ry}
+              gradientUnits="objectBoundingBox"
+            >
+              <stop
+                offset="0%"
+                stopColor={grad1.color}
+                stopOpacity={grad1.opacity}
+              />
+              <stop offset="100%" stopColor={grad1.color} stopOpacity="0" />
+            </radialGradient>
+
+            {/* ── Gradient 2: radial kiri bawah (maroon) ───────── */}
+            <radialGradient
+              id="gradMaroon"
+              cx={grad2.cx}
+              cy={grad2.cy}
+              rx={grad2.rx}
+              ry={grad2.ry}
+              gradientUnits="objectBoundingBox"
+            >
+              <stop
+                offset="0%"
+                stopColor={grad2.color}
+                stopOpacity={grad2.opacity}
+              />
+              <stop offset="100%" stopColor={grad2.color} stopOpacity="0" />
+            </radialGradient>
+          </defs>
+
+          {/*
+            Tiga rect ditumpuk, semuanya pakai mask yang sama:
+            1. Base color solid
+            2. Gold radial di atas
+            3. Maroon radial di atas
+            → hasil = radial-gradient(gold) + radial-gradient(maroon) di atas base
+          */}
+          <rect
+            width="100"
+            height="100"
+            fill={baseColor}
+            mask="url(#heartHole)"
+          />
+          <rect
+            width="100"
+            height="100"
+            fill="url(#gradGold)"
+            mask="url(#heartHole)"
+          />
+          <rect
+            width="100"
+            height="100"
+            fill="url(#gradMaroon)"
+            mask="url(#heartHole)"
+          />
+        </svg>
       </div>
     </section>
   );

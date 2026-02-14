@@ -1,30 +1,75 @@
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX, Music } from "lucide-react";
-import { audioUrl } from "@/data/valentineData";
+import { Volume2, VolumeX } from "lucide-react";
+import audioUrl from "../../assets/lagu.mp3";
 
 const AudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
     audio.volume = 0.3;
     audio.loop = true;
+    audio.muted = true;
 
-    // Try autoplay (will likely be blocked by browser)
-    const tryPlay = async () => {
+    const tryAutoplay = async () => {
       try {
-        audio.muted = true;
         await audio.play();
         setIsPlaying(true);
       } catch {
-        // Autoplay blocked, user needs to interact
+        // Autoplay blocked sepenuhnya, tunggu interaksi user
       }
     };
-    tryPlay();
+
+    tryAutoplay();
   }, []);
+
+  // Unmute otomatis saat user pertama kali berinteraksi dengan halaman
+  useEffect(() => {
+    if (hasInteracted) return;
+
+    const handleFirstInteraction = async () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      setHasInteracted(true);
+
+      // Jika audio belum play sama sekali (autoplay blocked), mulai play
+      if (audio.paused) {
+        try {
+          audio.muted = false;
+          await audio.play();
+          setIsPlaying(true);
+          setIsMuted(false);
+        } catch {
+          // tetap gagal
+        }
+      } else {
+        // Audio sudah play dalam kondisi muted, unmute sekarang
+        audio.muted = false;
+        setIsMuted(false);
+      }
+
+      // Hapus listener setelah interaksi pertama
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("keydown", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
+    };
+
+    document.addEventListener("click", handleFirstInteraction);
+    document.addEventListener("keydown", handleFirstInteraction);
+    document.addEventListener("touchstart", handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("keydown", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
+    };
+  }, [hasInteracted]);
 
   const toggleMute = async () => {
     const audio = audioRef.current;
@@ -37,11 +82,12 @@ const AudioPlayer = () => {
         setIsPlaying(true);
         setIsMuted(false);
       } catch {
-        // play failed
+        // play gagal
       }
     } else {
-      audio.muted = !audio.muted;
-      setIsMuted(!isMuted);
+      const newMuted = !audio.muted;
+      audio.muted = newMuted;
+      setIsMuted(newMuted);
     }
   };
 
@@ -57,15 +103,18 @@ const AudioPlayer = () => {
         }}
         aria-label={isMuted ? "Unmute music" : "Mute music"}
       >
-        {/* Equalizer bars */}
         <div className="flex items-end gap-0.5 h-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
               className="w-1 bg-white/80 rounded-full transition-all duration-300"
               style={{
-                height: !isMuted && isPlaying ? `${Math.random() * 12 + 4}px` : "4px",
-                animation: !isMuted && isPlaying ? `equalizer${i} 0.5s ease-in-out infinite alternate` : "none",
+                height:
+                  !isMuted && isPlaying ? `${Math.random() * 12 + 4}px` : "4px",
+                animation:
+                  !isMuted && isPlaying
+                    ? `equalizer${i} 0.5s ease-in-out infinite alternate`
+                    : "none",
               }}
             />
           ))}

@@ -5,7 +5,11 @@ import { surpriseMessage } from "@/data/valentineData";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SurpriseSection = () => {
+interface SurpriseSectionProps {
+  onCaught: () => void;
+}
+
+const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -18,7 +22,7 @@ const SurpriseSection = () => {
   // Runaway button
   const handleMouseEnter = useCallback(() => {
     if (caught || !btnRef.current || !sectionRef.current) return;
-    if (attempts >= maxEvades) return; // Let them click
+    if (attempts >= maxEvades) return;
 
     const section = sectionRef.current.getBoundingClientRect();
     const maxX = section.width - 160;
@@ -39,8 +43,8 @@ const SurpriseSection = () => {
   const triggerCelebration = () => {
     if (caught) return;
     setCaught(true);
+    onCaught(); // ← notify parent
 
-    // Particle explosion
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -51,14 +55,25 @@ const SurpriseSection = () => {
     canvas.style.display = "block";
 
     const particles: {
-      x: number; y: number; vx: number; vy: number;
-      size: number; color: string; type: "heart" | "confetti";
-      rotation: number; rotSpeed: number; life: number;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      color: string;
+      type: "heart" | "confetti";
+      rotation: number;
+      rotSpeed: number;
+      life: number;
     }[] = [];
 
     const colors = [
-      "hsl(350, 60%, 45%)", "hsl(0, 86%, 70%)", "hsl(33, 55%, 65%)",
-      "hsl(345, 100%, 35%)", "hsl(0, 100%, 80%)", "hsl(330, 80%, 60%)",
+      "hsl(350, 60%, 45%)",
+      "hsl(0, 86%, 70%)",
+      "hsl(33, 55%, 65%)",
+      "hsl(345, 100%, 35%)",
+      "hsl(0, 100%, 80%)",
+      "hsl(330, 80%, 60%)",
     ];
 
     for (let i = 0; i < 200; i++) {
@@ -76,7 +91,6 @@ const SurpriseSection = () => {
       });
     }
 
-    // Add falling hearts from top
     for (let i = 0; i < 80; i++) {
       setTimeout(() => {
         particles.push({
@@ -94,7 +108,13 @@ const SurpriseSection = () => {
       }, i * 50);
     }
 
-    const drawHeart = (x: number, y: number, size: number, color: string, rot: number) => {
+    const drawHeart = (
+      x: number,
+      y: number,
+      size: number,
+      color: string,
+      rot: number,
+    ) => {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate((rot * Math.PI) / 180);
@@ -146,7 +166,7 @@ const SurpriseSection = () => {
 
     animate();
 
-    // Show message after a delay
+    // Show message + scroll to footer after delay
     setTimeout(() => {
       setShowMessage(true);
       if (messageRef.current) {
@@ -157,6 +177,14 @@ const SurpriseSection = () => {
           ease: "back.out(2)",
         });
       }
+
+      // Auto-scroll to footer setelah message muncul
+      setTimeout(() => {
+        const footer = document.querySelector("footer");
+        if (footer) {
+          footer.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 800);
     }, 1500);
 
     return () => cancelAnimationFrame(animFrame);
@@ -179,7 +207,14 @@ const SurpriseSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-24 md:py-32 px-6 min-h-[60vh] flex flex-col items-center justify-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative pt-24 md:pt-32 pb-0 px-6 min-h-[60vh] flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(to bottom, transparent 0%, hsl(var(--valentine-cream) / 0.15) 100%)",
+      }}
+    >
       <canvas
         ref={canvasRef}
         className="fixed inset-0 z-50 pointer-events-none"
@@ -187,10 +222,10 @@ const SurpriseSection = () => {
       />
 
       <h2 className="font-serif-display text-3xl md:text-5xl font-bold text-center mb-4 text-gradient-valentine">
-        Sebuah Kejutan ✨
+        For You ✨
       </h2>
       <p className="text-center text-muted-foreground mb-12 font-sans-body">
-        {!caught ? "Coba tangkap tombolnya! 😜" : ""}
+        {!caught ? "Catch me! 😜" : ""}
       </p>
 
       <div className="relative w-full max-w-lg h-48 flex items-center justify-center">
@@ -212,7 +247,7 @@ const SurpriseSection = () => {
       {showMessage && (
         <div
           ref={messageRef}
-          className="mt-8 max-w-lg text-center p-8 rounded-2xl"
+          className="mt-8 mb-16 max-w-lg text-center p-8 rounded-2xl"
           style={{
             background: `linear-gradient(135deg, hsl(var(--valentine-cream)), hsl(var(--card)))`,
             boxShadow: `0 20px 60px -15px hsl(var(--valentine-rose) / 0.2)`,
@@ -220,7 +255,7 @@ const SurpriseSection = () => {
         >
           <p className="text-2xl mb-2">🥰</p>
           <p className="font-serif-display text-xl md:text-2xl font-semibold text-primary mb-2">
-            Kamu berhasil menangkapnya!
+            U got me sayang!
           </p>
           <p className="font-sans-body text-foreground/80 text-lg leading-relaxed">
             {surpriseMessage}

@@ -1,56 +1,103 @@
 // ============================================
 // Valentine Data - Edit semua konten di sini!
 // ============================================
+const getAsset = (filename: string) =>
+  new URL(`../assets/photos/${filename}`, import.meta.url).href;
 
 export const heroData = {
   title: "Happy Valentine's Day",
-  subtitle: "Untuk seseorang yang sangat spesial di hatiku 💕",
+  subtitle: "For my one and only 💕",
 };
 
 export const loveLetterLines = [
-  "Sayang,",
-  "Sejak pertama kali kita bertemu,",
-  "duniaku berubah menjadi lebih berwarna.",
-  "Setiap hari bersamamu adalah hadiah terindah",
-  "yang pernah aku terima dari semesta.",
+  "Regina my beloved,",
+  "Ever since the first time we met,",
+  "my world has become so much more colorful.",
+  "Every day with you is the most beautiful gift",
+  "I have ever received from the universe.",
   "",
-  "Kau adalah alasan di balik senyumku,",
-  "pelabuhan di saat aku lelah,",
-  "dan bintang yang menerangi malamku.",
+  "You are the reason behind my smile,",
+  "the harbor when I am weary,",
+  "and the star that lights up my night.",
   "",
-  "Aku tidak butuh kata-kata yang sempurna",
-  "untuk menggambarkan perasaanku.",
-  "Cukup kau tahu bahwa hatiku",
-  "selalu dan selamanya milikmu.",
+  "I don't need perfect words",
+  "to describe how I feel.",
+  "It is enough for you to know that my heart",
+  "is always and forever yours.",
   "",
-  "Terima kasih telah menjadi bagian",
-  "terindah dalam hidupku.",
+  "Thank you for being",
+  "the most beautiful part of my life.",
   "",
-  "Dengan segenap cinta,",
-  "— Aku 💕",
+  "— Nadhif 💕",
 ];
 
 export const photos = [
-  { id: 1, url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=500&fit=crop", caption: "Momen pertama kita" },
-  { id: 2, url: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=400&h=500&fit=crop", caption: "Tawa yang tak terlupakan" },
-  { id: 3, url: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=500&fit=crop", caption: "Bersama di senja" },
-  { id: 4, url: "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=400&h=500&fit=crop", caption: "Petualangan kita" },
-  { id: 5, url: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&h=500&fit=crop", caption: "Dinner romantis" },
-  { id: 6, url: "https://images.unsplash.com/photo-1455612693675-112974d3189a?w=400&h=500&fit=crop", caption: "Pelukan hangat" },
-  { id: 7, url: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=500&fit=crop", caption: "Liburan berdua" },
-  { id: 8, url: "https://images.unsplash.com/photo-1543353071-087092ec169a?w=400&h=500&fit=crop", caption: "Langkah bersama" },
-  { id: 9, url: "https://images.unsplash.com/photo-1501901609772-df0848060b33?w=400&h=500&fit=crop", caption: "Senja favorit" },
-  { id: 10, url: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=500&fit=crop", caption: "Kebersamaan" },
-  { id: 11, url: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&h=500&fit=crop", caption: "Tarian kita" },
-  { id: 12, url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop", caption: "Selamanya berdua" },
+  {
+    id: 1,
+    url: getAsset("1.jpg"),
+    caption: "Our first date",
+  },
+  {
+    id: 2,
+    url: getAsset("2.jpg"),
+    caption: "Mirror selfie wkwk",
+  },
+  {
+    id: 3,
+    url: getAsset("3.jpg"),
+    caption: "Romlok ❤️",
+  },
+  {
+    id: 4,
+    url: getAsset("4.jpg"),
+    caption: "Melukish",
+  },
+  {
+    id: 5,
+    url: getAsset("5.jpeg"),
+    caption: "Ayim sblm melukish",
+  },
+  {
+    id: 6,
+    url: getAsset("6.jpg"),
+    caption: "Foto bareng tante",
+  },
+  {
+    id: 7,
+    url: getAsset("7.jpg"),
+    caption: "Pamer cilung",
+  },
+  {
+    id: 8,
+    url: getAsset("8.jpg"),
+    caption: "First hug",
+  },
+  {
+    id: 9,
+    url: getAsset("9.jpg"),
+    caption: "Esh kim",
+  },
+  {
+    id: 10,
+    url: getAsset("10.jpg"),
+    caption: "My ikan buntal",
+  },
+  {
+    id: 11,
+    url: getAsset("11.jpg"),
+    caption: "Late Night",
+  },
+  {
+    id: 12,
+    url: getAsset("12.jpg"),
+    caption: "First Photobooth",
+  },
 ];
 
-export const surpriseMessage = "Kamu adalah hal terbaik yang pernah terjadi dalam hidupku. Selamat Hari Valentine, sayang! 🥰💕";
+export const surpriseMessage =
+  "You are the best thing that has ever happened to my life. Happy Valentine’s Day, princess! 🥰💕";
 
 export const footerData = {
-  message: "Dibuat dengan ❤️ hanya untukmu",
-  specialDate: "14 Februari 2026",
+  message: "With ❤️, just for you",
+  specialDate: "22 October 2025",
 };
-
-// URL audio - ganti dengan URL lagu favoritmu
-export const audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";

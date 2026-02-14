@@ -33,7 +33,7 @@ const LoveLetter = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 px-6">
+    <section ref={sectionRef} className="pb-24 pt-0 px-6">
       <div className="max-w-2xl mx-auto">
         <h2 className="font-serif-display text-3xl md:text-5xl font-bold text-center mb-16 text-gradient-valentine">
           Surat Cinta 💌
@@ -53,15 +53,17 @@ const LoveLetter = () => {
             {loveLetterLines.map((line, i) => (
               <p
                 key={i}
-                ref={(el) => { linesRef.current[i] = el; }}
+                ref={(el) => {
+                  linesRef.current[i] = el;
+                }}
                 className={`font-sans-body text-base md:text-lg leading-relaxed ${
                   line === ""
                     ? "h-4"
                     : line.startsWith("—")
-                    ? "text-primary font-medium italic mt-4"
-                    : line.endsWith(",") && i === 0
-                    ? "font-serif-display text-xl md:text-2xl text-primary font-semibold"
-                    : "text-foreground/80"
+                      ? "text-primary font-medium italic mt-4"
+                      : line.endsWith(",") && i === 0
+                        ? "font-serif-display text-xl md:text-2xl text-primary font-semibold"
+                        : "text-foreground/80"
                 }`}
               >
                 {line}

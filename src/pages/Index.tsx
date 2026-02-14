@@ -11,6 +11,7 @@ import FooterSection from "@/components/valentine/FooterSection";
 
 const Index = () => {
   const [preloaderDone, setPreloaderDone] = useState(false);
+  const [surpriseCaught, setSurpriseCaught] = useState(false);
 
   return (
     <>
@@ -21,8 +22,11 @@ const Index = () => {
         <ScrollMaskVideo />
         <LoveLetter />
         <PhotoGallery />
-        <SurpriseSection />
-        <FooterSection />
+        {/* SurpriseSection + FooterSection menyatu tanpa gap */}
+        <div className="flex flex-col">
+          <SurpriseSection onCaught={() => setSurpriseCaught(true)} />
+          <FooterSection triggerAnimation={surpriseCaught} />
+        </div>
         <AudioPlayer />
       </main>
     </>
