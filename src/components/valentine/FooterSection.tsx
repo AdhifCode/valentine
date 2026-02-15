@@ -241,8 +241,10 @@ const FooterSection = () => {
   return (
     <footer
       ref={footerRef}
-      className="relative overflow-hidden pt-16 pb-24 px-6 text-center w-full"
+      className="relative pt-16 pb-24 px-6 text-center w-full"
       style={{
+        // overflow-hidden mencegah canvas melampaui batas footer
+        overflow: "hidden",
         background:
           "linear-gradient(to bottom, hsl(var(--valentine-cream) / 0.15) 0%, hsl(var(--valentine-cream) / 0.3) 100%)",
         minHeight: "0",

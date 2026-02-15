@@ -17,25 +17,28 @@ const Index = () => {
   return (
     <>
       <Preloader onComplete={() => setPreloaderDone(true)} />
-      <main className="relative min-h-screen bg-background overflow-x-hidden">
+      {/* 
+        Fix: ganti overflow-x-hidden → overflow-hidden di main.
+        overflow-x-hidden saja kadang memicu scrollbar vertikal tambahan
+        karena browser perlu ruang untuk menghitung overflow horizontal.
+        Gunakan overflow-hidden di main, lalu izinkan scroll hanya di html/body.
+      */}
+      <main className="relative min-h-screen bg-background overflow-hidden">
         <FloatingHearts />
         <HeroSection />
         <ScrollMaskVideo />
         <LoveLetter />
         <div style={{ height: "600px", position: "relative" }}>
           <CircularGallery
-            bend={3}
-            textColor="#FDE2E4"
-            borderRadius={0.05}
-            scrollEase={0.02}
             bend={1}
+            textColor="#FDE2E4"
             borderRadius={0.05}
             scrollSpeed={2}
             scrollEase={0.05}
           />
         </div>
         <PhotoGallery />
-        <div className="flex flex-col">
+        <div>
           <SurpriseSection onCaught={() => setSurpriseCaught(true)} />
           {surpriseCaught && <FooterSection />}
         </div>

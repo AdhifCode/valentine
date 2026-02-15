@@ -11,7 +11,7 @@ interface SurpriseSectionProps {
 
 const BUTTON_W = 160;
 const BUTTON_H = 56;
-const PADDING = 24; // safe margin from container edges
+const PADDING = 24;
 
 const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -24,25 +24,21 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   const [showMessage, setShowMessage] = useState(false);
   const maxEvades = 5;
 
-  // Runaway button — always stays inside the container
   const handleMouseEnter = useCallback(() => {
     if (caught || !btnRef.current || !containerRef.current) return;
     if (attempts >= maxEvades) return;
 
     const container = containerRef.current.getBoundingClientRect();
-    const btnRect = btnRef.current.getBoundingClientRect();
 
-    // Available space (container minus button size minus padding)
     const maxX = container.width - BUTTON_W - PADDING * 2;
     const maxY = container.height - BUTTON_H - PADDING * 2;
 
     if (maxX <= 0 || maxY <= 0) return;
 
-    // Current button position relative to container
+    const btnRect = btnRef.current.getBoundingClientRect();
     const currentX = btnRect.left - container.left;
     const currentY = btnRect.top - container.top;
 
-    // Pick a random new position, biased away from current position
     let newX: number;
     let newY: number;
     let tries = 0;
@@ -57,9 +53,26 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
       Math.abs(newY - currentY) < BUTTON_H
     );
 
+    // Hitung center-relative offset
+    const centerX = container.width / 2 - BUTTON_W / 2;
+    const centerY = container.height / 2 - BUTTON_H / 2;
+
+    // Clamp agar tidak pernah keluar batas container
+    const maxTranslateX = centerX - PADDING;
+    const maxTranslateY = centerY - PADDING;
+
+    const translateX = Math.max(
+      -maxTranslateX,
+      Math.min(maxTranslateX, newX - centerX),
+    );
+    const translateY = Math.max(
+      -maxTranslateY,
+      Math.min(maxTranslateY, newY - centerY),
+    );
+
     gsap.to(btnRef.current, {
-      x: newX - (container.width / 2 - BUTTON_W / 2),
-      y: newY - (container.height / 2 - BUTTON_H / 2),
+      x: translateX,
+      y: translateY,
       duration: 0.3,
       ease: "power2.out",
     });
@@ -234,12 +247,15 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   return (
     <section
       ref={sectionRef}
-      className="relative pt-24 md:pt-32 pb-0 px-6 min-h-[60vh] flex flex-col items-center justify-center overflow-hidden"
+      className="relative pt-24 md:pt-32 pb-0 px-6 min-h-[60vh] flex flex-col items-center justify-center"
       style={{
+        // overflow-hidden di sini saja cukup — TIDAK di body/html
+        overflow: "hidden",
         background:
           "linear-gradient(to bottom, transparent 0%, hsl(var(--valentine-cream) / 0.15) 100%)",
       }}
     >
+      {/* Canvas celebration: fixed agar tidak affect layout */}
       <canvas
         ref={canvasRef}
         className="fixed inset-0 z-50 pointer-events-none"
@@ -253,10 +269,15 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
         {!caught ? "Catch me! 😜" : ""}
       </p>
 
-      {/* Container dengan overflow-hidden supaya tombol tidak keluar */}
+      {/*
+        Container tombol:
+        - overflow-hidden wajib ada di sini
+        - position: relative + width fixed agar GSAP transform tidak melampaui batas
+      */}
       <div
         ref={containerRef}
-        className="relative w-full max-w-lg h-48 flex items-center justify-center overflow-hidden rounded-2xl"
+        className="relative w-full max-w-lg h-48 flex items-center justify-center rounded-2xl"
+        style={{ overflow: "hidden" }}
       >
         {!caught && (
           <button
@@ -268,11 +289,12 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
               width: `${BUTTON_W}px`,
               height: `${BUTTON_H}px`,
               background: `linear-gradient(135deg, hsl(var(--valentine-rose)), hsl(var(--valentine-gold)))`,
-              // Start centered
               left: "50%",
               top: "50%",
               marginLeft: `-${BUTTON_W / 2}px`,
               marginTop: `-${BUTTON_H / 2}px`,
+              // Pastikan tidak ada transform awal yang aneh
+              willChange: "transform",
             }}
           >
             Click Me 💕

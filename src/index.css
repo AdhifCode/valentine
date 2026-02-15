@@ -52,6 +52,11 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
+  html,
+  body {
+    overflow-x: hidden; /* mencegah horizontal scrollbar */
+  }
+
   .dark {
     --background: 345 30% 8%;
     --foreground: 0 86% 94%;
