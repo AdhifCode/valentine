@@ -5,10 +5,6 @@ import { footerData } from "@/data/valentineData";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface FooterSectionProps {
-  triggerAnimation: boolean;
-}
-
 const PETAL_COLORS = ["#f5f0eb", "#ede8e0", "#faf7f2", "#e8e2d9", "#f0ebe3"];
 
 interface Flower {
@@ -28,14 +24,13 @@ interface Flower {
   delay: number;
 }
 
-const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
+const FooterSection = () => {
   const footerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const flowersRef = useRef<Flower[]>([]);
   const animFrameRef = useRef<number>(0);
   const phaseRef = useRef<"idle" | "bloom" | "fly">("idle");
   const triggerTimeRef = useRef<number>(0);
-  const animationStartedRef = useRef(false);
 
   const spawnFlowers = (canvas: HTMLCanvasElement) => {
     const count = 28;
@@ -82,7 +77,6 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
     ctx.rotate(rotation);
     ctx.scale(scale, scale);
 
-    // Petals
     for (let i = 0; i < petalCount; i++) {
       const angle = (i / petalCount) * Math.PI * 2;
       ctx.save();
@@ -110,7 +104,6 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
       ctx.restore();
     }
 
-    // Star-burst center
     for (let i = 0; i < 10; i++) {
       const a = (i / 10) * Math.PI * 2;
       ctx.save();
@@ -124,7 +117,6 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
       ctx.restore();
     }
 
-    // Golden center
     ctx.beginPath();
     ctx.arc(0, 0, 3.5 * bp, 0, Math.PI * 2);
     const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, 3.5 * bp);
@@ -138,17 +130,13 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
     ctx.restore();
   };
 
-  // Start animation when triggerAnimation becomes true
+  // Langsung trigger saat mount karena komponen ini hanya
+  // di-render setelah surpriseCaught = true
   useEffect(() => {
-    if (!triggerAnimation || animationStartedRef.current) return;
-    animationStartedRef.current = true;
-
-    // Give footer time to scroll into view first
     setTimeout(() => {
       phaseRef.current = "bloom";
       triggerTimeRef.current = performance.now();
 
-      // Animate text in
       gsap.to(".footer-text-content", {
         opacity: 1,
         y: 0,
@@ -156,7 +144,7 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
         ease: "power3.out",
       });
     }, 600);
-  }, [triggerAnimation]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -253,11 +241,11 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
   return (
     <footer
       ref={footerRef}
-      className="relative overflow-hidden pt-16 pb-24 px-6 text-center"
+      className="relative overflow-hidden pt-16 pb-24 px-6 text-center w-full"
       style={{
         background:
           "linear-gradient(to bottom, hsl(var(--valentine-cream) / 0.15) 0%, hsl(var(--valentine-cream) / 0.3) 100%)",
-        minHeight: "420px",
+        minHeight: "0",
         marginTop: "-1px",
       }}
     >
@@ -266,7 +254,6 @@ const FooterSection = ({ triggerAnimation }: FooterSectionProps) => {
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
 
-      {/* Text — starts hidden, revealed when triggerAnimation fires */}
       <div
         className="footer-text-content relative z-10 max-w-md mx-auto"
         style={{

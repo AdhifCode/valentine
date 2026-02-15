@@ -35,10 +35,9 @@ const Index = () => {
           />
         </div>
         <PhotoGallery />
-        {/* SurpriseSection + FooterSection menyatu tanpa gap */}
         <div className="flex flex-col">
           <SurpriseSection onCaught={() => setSurpriseCaught(true)} />
-          <FooterSection triggerAnimation={surpriseCaught} />
+          {surpriseCaught && <FooterSection />}
         </div>
         <AudioPlayer />
       </main>

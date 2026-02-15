@@ -9,30 +9,57 @@ interface SurpriseSectionProps {
   onCaught: () => void;
 }
 
+const BUTTON_W = 160;
+const BUTTON_H = 56;
+const PADDING = 24; // safe margin from container edges
+
 const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [attempts, setAttempts] = useState(0);
   const [caught, setCaught] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const maxEvades = 5;
 
-  // Runaway button
+  // Runaway button — always stays inside the container
   const handleMouseEnter = useCallback(() => {
-    if (caught || !btnRef.current || !sectionRef.current) return;
+    if (caught || !btnRef.current || !containerRef.current) return;
     if (attempts >= maxEvades) return;
 
-    const section = sectionRef.current.getBoundingClientRect();
-    const maxX = section.width - 160;
-    const maxY = section.height - 60;
-    const newX = Math.random() * maxX;
-    const newY = Math.random() * maxY;
+    const container = containerRef.current.getBoundingClientRect();
+    const btnRect = btnRef.current.getBoundingClientRect();
+
+    // Available space (container minus button size minus padding)
+    const maxX = container.width - BUTTON_W - PADDING * 2;
+    const maxY = container.height - BUTTON_H - PADDING * 2;
+
+    if (maxX <= 0 || maxY <= 0) return;
+
+    // Current button position relative to container
+    const currentX = btnRect.left - container.left;
+    const currentY = btnRect.top - container.top;
+
+    // Pick a random new position, biased away from current position
+    let newX: number;
+    let newY: number;
+    let tries = 0;
+
+    do {
+      newX = PADDING + Math.random() * maxX;
+      newY = PADDING + Math.random() * maxY;
+      tries++;
+    } while (
+      tries < 10 &&
+      Math.abs(newX - currentX) < BUTTON_W &&
+      Math.abs(newY - currentY) < BUTTON_H
+    );
 
     gsap.to(btnRef.current, {
-      x: newX - maxX / 2,
-      y: newY - maxY / 2,
+      x: newX - (container.width / 2 - BUTTON_W / 2),
+      y: newY - (container.height / 2 - BUTTON_H / 2),
       duration: 0.3,
       ease: "power2.out",
     });
@@ -43,7 +70,7 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
   const triggerCelebration = () => {
     if (caught) return;
     setCaught(true);
-    onCaught(); // ← notify parent
+    onCaught();
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -166,7 +193,6 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
 
     animate();
 
-    // Show message + scroll to footer after delay
     setTimeout(() => {
       setShowMessage(true);
       if (messageRef.current) {
@@ -178,7 +204,6 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
         });
       }
 
-      // Auto-scroll to footer setelah message muncul
       setTimeout(() => {
         const footer = document.querySelector("footer");
         if (footer) {
@@ -228,15 +253,26 @@ const SurpriseSection = ({ onCaught }: SurpriseSectionProps) => {
         {!caught ? "Catch me! 😜" : ""}
       </p>
 
-      <div className="relative w-full max-w-lg h-48 flex items-center justify-center">
+      {/* Container dengan overflow-hidden supaya tombol tidak keluar */}
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-lg h-48 flex items-center justify-center overflow-hidden rounded-2xl"
+      >
         {!caught && (
           <button
             ref={btnRef}
             onMouseEnter={handleMouseEnter}
             onClick={triggerCelebration}
-            className="px-8 py-4 rounded-full font-sans-body font-semibold text-lg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
+            className="absolute px-6 py-4 rounded-full font-sans-body font-semibold text-lg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
             style={{
+              width: `${BUTTON_W}px`,
+              height: `${BUTTON_H}px`,
               background: `linear-gradient(135deg, hsl(var(--valentine-rose)), hsl(var(--valentine-gold)))`,
+              // Start centered
+              left: "50%",
+              top: "50%",
+              marginLeft: `-${BUTTON_W / 2}px`,
+              marginTop: `-${BUTTON_H / 2}px`,
             }}
           >
             Click Me 💕
