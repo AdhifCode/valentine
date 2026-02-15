@@ -8,6 +8,7 @@ import PhotoGallery from "@/components/valentine/PhotoGallery";
 import SurpriseSection from "@/components/valentine/SurpriseSection";
 import AudioPlayer from "@/components/valentine/AudioPlayer";
 import FooterSection from "@/components/valentine/FooterSection";
+import CircularGallery from "@/components/valentine/CircularGallery";
 
 const Index = () => {
   const [preloaderDone, setPreloaderDone] = useState(false);
@@ -21,6 +22,18 @@ const Index = () => {
         <HeroSection />
         <ScrollMaskVideo />
         <LoveLetter />
+        <div style={{ height: "600px", position: "relative" }}>
+          <CircularGallery
+            bend={3}
+            textColor="#FDE2E4"
+            borderRadius={0.05}
+            scrollEase={0.02}
+            bend={1}
+            borderRadius={0.05}
+            scrollSpeed={2}
+            scrollEase={0.05}
+          />
+        </div>
         <PhotoGallery />
         {/* SurpriseSection + FooterSection menyatu tanpa gap */}
         <div className="flex flex-col">

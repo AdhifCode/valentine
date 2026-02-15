@@ -36,7 +36,7 @@ const LoveLetter = () => {
     <section ref={sectionRef} className="pb-24 pt-0 px-6">
       <div className="max-w-2xl mx-auto">
         <h2 className="font-serif-display text-3xl md:text-5xl font-bold text-center mb-16 text-gradient-valentine">
-          Surat Cinta 💌
+          Love Letter 💌
         </h2>
         <div
           className="relative rounded-2xl p-8 md:p-12"

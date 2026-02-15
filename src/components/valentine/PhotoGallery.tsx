@@ -33,7 +33,10 @@ const PhotoGallery = () => {
     return () => ctx.revert();
   }, []);
 
-  const handleTilt = (e: React.MouseEvent<HTMLDivElement>, card: HTMLDivElement) => {
+  const handleTilt = (
+    e: React.MouseEvent<HTMLDivElement>,
+    card: HTMLDivElement,
+  ) => {
     const rect = card.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -47,7 +50,13 @@ const PhotoGallery = () => {
   };
 
   const handleTiltReset = (card: HTMLDivElement) => {
-    gsap.to(card, { rotateY: 0, rotateX: 0, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.5)" });
+    gsap.to(card, {
+      rotateY: 0,
+      rotateX: 0,
+      scale: 1,
+      duration: 0.5,
+      ease: "elastic.out(1, 0.5)",
+    });
   };
 
   const navigateLightbox = (dir: number) => {
@@ -63,18 +72,27 @@ const PhotoGallery = () => {
           Memory Lane 📸
         </h2>
         <p className="text-center text-muted-foreground mb-16 font-sans-body">
-          Kumpulan momen indah kita bersama
+          Our memory
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" style={{ perspective: "1000px" }}>
+        <div
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          style={{ perspective: "1000px" }}
+        >
           {photos.map((photo, i) => (
             <div
               key={photo.id}
-              ref={(el) => { cardsRef.current[i] = el; }}
+              ref={(el) => {
+                cardsRef.current[i] = el;
+              }}
               className="group cursor-pointer rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
               style={{ transformStyle: "preserve-3d" }}
-              onMouseMove={(e) => cardsRef.current[i] && handleTilt(e, cardsRef.current[i]!)}
-              onMouseLeave={() => cardsRef.current[i] && handleTiltReset(cardsRef.current[i]!)}
+              onMouseMove={(e) =>
+                cardsRef.current[i] && handleTilt(e, cardsRef.current[i]!)
+              }
+              onMouseLeave={() =>
+                cardsRef.current[i] && handleTiltReset(cardsRef.current[i]!)
+              }
               onClick={() => setLightboxIndex(i)}
             >
               <div className="relative aspect-[4/5] overflow-hidden">
@@ -95,12 +113,18 @@ const PhotoGallery = () => {
       </div>
 
       {/* Lightbox */}
-      <Dialog open={lightboxIndex !== null} onOpenChange={() => setLightboxIndex(null)}>
+      <Dialog
+        open={lightboxIndex !== null}
+        onOpenChange={() => setLightboxIndex(null)}
+      >
         <DialogContent className="max-w-3xl p-0 bg-black/95 border-none overflow-hidden">
           {lightboxIndex !== null && (
             <div className="relative">
               <img
-                src={photos[lightboxIndex].url.replace("w=400&h=500", "w=800&h=1000")}
+                src={photos[lightboxIndex].url.replace(
+                  "w=400&h=500",
+                  "w=800&h=1000",
+                )}
                 alt={photos[lightboxIndex].caption}
                 className="w-full max-h-[80vh] object-contain"
               />
